@@ -1,10 +1,8 @@
 package org.yearup.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.yearup.models.ShoppingCart;
 import org.yearup.models.User;
 import org.yearup.service.ShoppingCartService;
@@ -46,6 +44,15 @@ public class ShoppingCartController
     // add a POST method to add a product to the cart - the url should be
     // https://localhost:8080/cart/products/15  (15 is the productId to be added)
     // return the updated cart with status 201 Created
+    @PostMapping("products/{productId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ShoppingCart addProduct(@PathVariable int productId, Principal principal) {
+        String userName = principal.getName();
+        User user = userService.getByUserName(userName);
+        int userId = user.getId();
+
+        return shoppingCartService.addProduct(userId, productId);
+    }
 
 
     // add a PUT method to update an existing product in the cart - the url should be
@@ -55,5 +62,14 @@ public class ShoppingCartController
 
     // add a DELETE method to clear all products from the current users cart
     // https://localhost:8080/cart  - return the (now empty) cart so the front end can refresh it (200 OK)
+    @DeleteMapping
+    public ShoppingCart clearCart(Principal principal) {
+        String userName = principal.getName();
+        User user = userService.getByUserName(userName);
+        int userId = user.getId();
+
+        return shoppingCartService.clearCart(userId);
+    }
+
 
 }
